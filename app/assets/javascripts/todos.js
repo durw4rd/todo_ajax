@@ -14,34 +14,75 @@ function nextTodoId() {
 }
 
 function createTodo(title) {
-  var checkboxId = "todo-" + nextTodoId();
 
-  var listItem = $("<li></li>");
-  listItem.addClass("todo");
+  var newTodo = { title: title, completed: false };
 
-  var checkbox = $('<input>');
-  checkbox.attr('type', 'checkbox');
-  checkbox.attr('id', checkboxId);
-  checkbox.val(1);
-  checkbox.bind('change', toggleDone);
+  $.ajax({
+    type: "POST",
+    url: "/todos.json",
+    data: JSON.stringify({
+        todo: newTodo
+    }),
+    contentType: "application/json",
+    dataType: "json"})
 
-  var space = document.createTextNode(" ");
+    .done(function(data) {
+      console.log(data);
 
-  var label = $('<label></label>');
-  label.attr('for', checkboxId);
-  label.html(title);
+      var checkboxId = "todo-" + data.id();
 
-  listItem.append(checkbox);
-  listItem.append(space);
-  listItem.append(label);
+      var listItem = $("<li></li>");
+      listItem.addClass("todo");
 
-  $("#todolist").append( listItem );
+      var checkbox = $('<input>');
+      checkbox.attr('type', 'checkbox');
+      checkbox.attr('id', checkboxId);
+      checkbox.val(1);
+      checkbox.bind('change', toggleDone);
 
-  updateCounters();
+      var space = document.createTextNode(" ");
+
+      var label = $('<label></label>');
+      label.attr('for', checkboxId);
+      label.html(title);
+
+      listItem.append(checkbox);
+      listItem.append(space);
+      listItem.append(label);
+
+      $("#todolist").append( listItem );
+
+      updateCounters();
+    })
+
+    .fail(function(error) {
+      console.log("Something went wrong!");
+      console.log(error);
+
+      var error_message = error.responseJSON.title[0];
+      showError(error_message);
+    });
+}
+
+function showError(message) {
+  $("#todo_title").addClass("error");
+
+  var errorElement = $("<small></small>")
+    .attr("id", "error_message")
+    .addClass("error")
+    .html(message);
+
+  $(errorElement).appendTo('form .field');
+}
+
+function resetErrors() {
+  $("#error_message").remove();
+  $("#todo_title").removeClass("error");
 }
 
 function submitTodo(event) {
   event.preventDefault();
+  resetErrors();
   createTodo($("#todo_title").val());
   $("#todo_title").val(null);
   updateCounters();
