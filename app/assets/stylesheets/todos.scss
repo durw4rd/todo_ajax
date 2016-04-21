@@ -76,10 +76,19 @@ body {
     a:visited {
       color: #e6e6e6;
       text-decoration: none;
+      float: right;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+
+    .glyphicon.glyphicon-trash {
+      float: right;
     }
 
     a:hover {
       text-decoration: underline;
     }
   }
+
+
 }
