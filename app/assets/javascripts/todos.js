@@ -53,10 +53,11 @@ function createTodo(title) {
     .done(function(data) {
       console.log(data);
 
-      var checkboxId = "todo-" + data.id();
+      var checkboxId = "todo-" + data.id;
 
       var listItem = $("<li></li>");
       listItem.addClass("todo");
+      listItem.attr('data-id', data.id);
 
       var checkbox = $('<input>');
       checkbox.attr('type', 'checkbox');
@@ -113,9 +114,24 @@ function submitTodo(event) {
 }
 
 function cleanUpDoneTodos(event) {
-  event.preventDefault();
-  $.when($(".completed").remove())
-    .then(updateCounters);
+  $.each($(".completed"), function(index, listItem) {
+    $listItem = $(listItem);
+    todoId = $(listItem).data('id');
+    deleteTodo(todoId);
+    $listItem.remove();
+  });
+}
+
+function deleteTodo(todoId) {
+  $.ajax({
+    type: "DELETE",
+    url: "/todos/" + todoId + ".json",
+    contentType: "application/json",
+    dataType: "json"})
+
+    .done(function(data) {
+      updateCounters();
+    });
 }
 
 $(document).ready(function(){
